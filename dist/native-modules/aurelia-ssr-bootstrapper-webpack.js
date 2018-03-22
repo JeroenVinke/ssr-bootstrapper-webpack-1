@@ -1,6 +1,7 @@
 import { Aurelia } from 'aurelia-framework';
 import { WebpackLoader } from 'aurelia-loader-webpack';
 import { DirtyCheckProperty } from 'aurelia-binding';
+import { EventAggregator } from 'aurelia-event-aggregator';
 // disable the dirty checker
 // otherwise the setTimeout of the dirty checker
 // prevents nodejs from garbage collecting the app
@@ -27,14 +28,16 @@ function start(configure) {
     var attribute = pal.DOM.createAttribute('aurelia-app');
     attribute.value = 'main';
     aurelia.host.attributes.setNamedItem(attribute);
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
+        var ea = aurelia.container.get(EventAggregator);
+        ea.subscribeOnce("router:navigation:error", function (e) {
+            reject(e.output.message);
+        });
         // we need to wait for aurelia-composed as otherwise
         // the router hasn't been fully initialized and 
         // generated routes by route-href will be undefined
         pal.DOM.global.window.addEventListener('aurelia-composed', function () {
-            setTimeout(function () {
-                resolve({ aurelia: aurelia, pal: pal, palNodeJS: palNodeJS, stop: stop });
-            }, 20);
+            resolve({ aurelia: aurelia, pal: pal, palNodeJS: palNodeJS, stop: stop });
         });
         return configure(aurelia);
     });

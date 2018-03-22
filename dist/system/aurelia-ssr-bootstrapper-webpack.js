@@ -1,4 +1,4 @@
-System.register(["aurelia-framework", "aurelia-loader-webpack", "aurelia-binding"], function (exports_1, context_1) {
+System.register(["aurelia-framework", "aurelia-loader-webpack", "aurelia-binding", "aurelia-event-aggregator"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     function initialize() {
@@ -16,14 +16,16 @@ System.register(["aurelia-framework", "aurelia-loader-webpack", "aurelia-binding
         var attribute = pal.DOM.createAttribute('aurelia-app');
         attribute.value = 'main';
         aurelia.host.attributes.setNamedItem(attribute);
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve, reject) {
+            var ea = aurelia.container.get(aurelia_event_aggregator_1.EventAggregator);
+            ea.subscribeOnce("router:navigation:error", function (e) {
+                reject(e.output.message);
+            });
             // we need to wait for aurelia-composed as otherwise
             // the router hasn't been fully initialized and 
             // generated routes by route-href will be undefined
             pal.DOM.global.window.addEventListener('aurelia-composed', function () {
-                setTimeout(function () {
-                    resolve({ aurelia: aurelia, pal: pal, palNodeJS: palNodeJS, stop: stop });
-                }, 20);
+                resolve({ aurelia: aurelia, pal: pal, palNodeJS: palNodeJS, stop: stop });
             });
             return configure(aurelia);
         });
@@ -42,7 +44,7 @@ System.register(["aurelia-framework", "aurelia-loader-webpack", "aurelia-binding
         };
     }
     exports_1("default", default_1);
-    var aurelia_framework_1, aurelia_loader_webpack_1, aurelia_binding_1, palNodeJS, pal;
+    var aurelia_framework_1, aurelia_loader_webpack_1, aurelia_binding_1, aurelia_event_aggregator_1, palNodeJS, pal;
     return {
         setters: [
             function (aurelia_framework_1_1) {
@@ -53,6 +55,9 @@ System.register(["aurelia-framework", "aurelia-loader-webpack", "aurelia-binding
             },
             function (aurelia_binding_1_1) {
                 aurelia_binding_1 = aurelia_binding_1_1;
+            },
+            function (aurelia_event_aggregator_1_1) {
+                aurelia_event_aggregator_1 = aurelia_event_aggregator_1_1;
             }
         ],
         execute: function () {

@@ -1,4 +1,4 @@
-define(["require", "exports", "aurelia-framework", "aurelia-loader-webpack", "aurelia-binding"], function (require, exports, aurelia_framework_1, aurelia_loader_webpack_1, aurelia_binding_1) {
+define(["require", "exports", "aurelia-framework", "aurelia-loader-webpack", "aurelia-binding", "aurelia-event-aggregator"], function (require, exports, aurelia_framework_1, aurelia_loader_webpack_1, aurelia_binding_1, aurelia_event_aggregator_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // disable the dirty checker
@@ -27,14 +27,16 @@ define(["require", "exports", "aurelia-framework", "aurelia-loader-webpack", "au
         var attribute = pal.DOM.createAttribute('aurelia-app');
         attribute.value = 'main';
         aurelia.host.attributes.setNamedItem(attribute);
-        return new Promise(function (resolve) {
+        return new Promise(function (resolve, reject) {
+            var ea = aurelia.container.get(aurelia_event_aggregator_1.EventAggregator);
+            ea.subscribeOnce("router:navigation:error", function (e) {
+                reject(e.output.message);
+            });
             // we need to wait for aurelia-composed as otherwise
             // the router hasn't been fully initialized and 
             // generated routes by route-href will be undefined
             pal.DOM.global.window.addEventListener('aurelia-composed', function () {
-                setTimeout(function () {
-                    resolve({ aurelia: aurelia, pal: pal, palNodeJS: palNodeJS, stop: stop });
-                }, 20);
+                resolve({ aurelia: aurelia, pal: pal, palNodeJS: palNodeJS, stop: stop });
             });
             return configure(aurelia);
         });
