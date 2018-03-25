@@ -31,7 +31,7 @@ function start(configure) {
     return new Promise((resolve, reject) => {
         const ea = aurelia.container.get(EventAggregator);
         ea.subscribeOnce("router:navigation:error", (e) => {
-            reject(e.output.message);
+            reject(e.result.output);
         });
         // we need to wait for aurelia-composed as otherwise
         // the router hasn't been fully initialized and 

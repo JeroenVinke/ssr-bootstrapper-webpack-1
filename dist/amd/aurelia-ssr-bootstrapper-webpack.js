@@ -30,7 +30,7 @@ define(["require", "exports", "aurelia-framework", "aurelia-loader-webpack", "au
         return new Promise(function (resolve, reject) {
             var ea = aurelia.container.get(aurelia_event_aggregator_1.EventAggregator);
             ea.subscribeOnce("router:navigation:error", function (e) {
-                reject(e.output.message);
+                reject(e.result.output);
             });
             // we need to wait for aurelia-composed as otherwise
             // the router hasn't been fully initialized and 
